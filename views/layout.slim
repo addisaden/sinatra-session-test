@@ -1,5 +1,8 @@
 html
   body
     p
-      = "Bisher registrierte Nutzer: #{ @all_users }"
+      - if @all_users.empty?
+        = "Bisher existieren keine registrierten Benutzer."
+      - else
+        = "Bisher registrierte Nutzer: #{ @all_users }"
     == yield
