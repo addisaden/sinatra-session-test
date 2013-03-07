@@ -4,6 +4,33 @@ require "sinatra/base"
 require "slim"
 
 module SessionTest
+  class User
+    def self.register(username, password)
+      @users ||= {}
+      return false if @users.keys.include?(username) or username.empty? or password.length < 5
+      @users[username] = new(username, password)
+      true
+    end
+    def self.all
+      @users ||= {}
+      @users.keys
+    end
+    def self.get(username)
+      @users ||= {}
+      return @users[username] if @users.keys.include? username
+      nil
+    end
+    def initialize(username, password)
+      @username = username
+      @password = password
+      @created_at = Time.now
+    end
+    attr_reader :username, :created_at
+    def login(password)
+      password == @password
+    end
+  end
+
   class SessionTest < Sinatra::Base
     # enable :sessions
     use Rack::Session::Pool, :expire_after => 86400
@@ -12,7 +39,43 @@ module SessionTest
     get "/" do
       session[:value] ||= rand(1000)
       @session_id = session.inspect
+      @session_methods = session.class.instance_methods.inspect
       slim :session, layout: true
+    end
+
+    get "/home" do
+      if session[:user]
+        @user = User.get(session[:user])
+        slim :home, layout: true
+      else
+        slim :register, layout: true
+      end
+    end
+
+    post "/login" do
+      username = params["username"]
+      password = params["password"]
+      user = User.get(username)
+      if user && user.login(password) then
+        session[:user] = user.username
+      end
+      redirect to("/home")
+    end
+
+    post "/register" do
+      username = params["username"]
+      password = params["password"]
+      if(password != params["password_retype"]) then
+        redirect to("/home")
+      elsif User.register(username, password) then
+        session[:user] = User.get(username).username
+      end
+      redirect to("/home")
+    end
+
+    get "/logout" do
+      session.destroy
+      redirect to("/home")
     end
   end
 end

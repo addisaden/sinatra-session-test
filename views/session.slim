@@ -1,4 +1,7 @@
 h1
-  = "Ihre Session ist "
+  = "Ihr Sessioninhalt "
   b
     = @session_id
+p = @session_methods
+p
+  a href="/home" = "Userbereich"
