@@ -37,13 +37,11 @@ module SessionTest
     set :views, File.expand_path("../views", __FILE__)
 
     get "/" do
-      session[:value] ||= rand(1000)
-      @session_id = session.inspect
-      @session_methods = session.class.instance_methods.inspect
-      slim :session, layout: true
+      redirect to "/home"
     end
 
     get "/home" do
+      @all_users = User.all.join(", ")
       if session[:user]
         @user = User.get(session[:user])
         slim :home, layout: true
