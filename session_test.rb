@@ -2,6 +2,7 @@
 
 require "sinatra/base"
 require "slim"
+require "digest/sha1"
 
 module SessionTest
   class User
@@ -22,12 +23,12 @@ module SessionTest
     end
     def initialize(username, password)
       @username = username
-      @password = password
+      @password = Digest::SHA1.hexdigest(password)
       @created_at = Time.now
     end
     attr_reader :username, :created_at
     def login(password)
-      password == @password
+      Digest::SHA1.hexdigest(password) == @password
     end
   end
 
