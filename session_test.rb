@@ -6,18 +6,16 @@ require "digest/sha1"
 
 module SessionTest
   class User
+    @users = {}
     def self.register(username, password)
-      @users ||= {}
       return false if @users.keys.include?(username) or username.empty? or password.length < 5
       @users[username] = new(username, password)
       true
     end
     def self.all
-      @users ||= {}
       @users.keys
     end
     def self.get(username)
-      @users ||= {}
       return @users[username] if @users.keys.include? username
       nil
     end
